@@ -1,0 +1,98 @@
+<div class="bg-gray-50 px-4 sm:px-8 lg:px-16 py-8">
+  <div class="max-w-screen-xl mx-auto">
+
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6">
+      <div class="mb-4 sm:mb-0">
+        <h1 class="text-2xl sm:text-3xl font-bold text-gray-800 mb-2">Customer Ledgers</h1>
+        <p class="text-sm text-gray-600">View detailed transaction history for customer accounts</p>
+      </div>
+
+      <div class="flex gap-2">
+        <button (click)="exportExcel()" class="flex items-center gap-1 border px-3 py-1.5 rounded text-sm text-gray-600 hover:bg-gray-100">
+          <i class="fas fa-download"></i> Export Excel
+        </button>
+        <button (click)="exportPDF()" class="flex items-center gap-1 border px-3 py-1.5 rounded text-sm text-gray-600 hover:bg-gray-100">
+          <i class="fas fa-file-alt"></i> Export PDF
+        </button>
+      </div>
+    </div>
+
+    <div class="bg-white rounded-lg shadow p-4 sm:p-5 max-w-8xl">
+  <label class="block text-xs sm:text-sm font-medium mb-1 sm:mb-2 text-gray-700 ">Select Customer Account</label>
+  <select [(ngModel)]="selectedCustomer" (change)="onCustomerSelect()"
+          class="w-full border rounded px-2 py-1.5 sm:px-3 sm:py-2 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-blue-400 max-w-md">
+    <option value="">Choose a customer</option>
+    <option *ngFor="let cust of customers" [value]="cust.id">{{ cust.name }}</option>
+  </select>
+  </div>
+
+  <div *ngIf="ledgers.length" class="bg-white rounded-lg shadow p-4 sm:p-5 max-w-8xl mb-4">
+  <div class="font-semibold text-gray-700 mb-2">📅 Date Range Filter</div>
+  <div class="flex gap-2 mb-2">
+    <input type="date" [(ngModel)]="fromDate" class="border rounded px-2 py-1 text-sm w-full max-w-md">
+    <input type="date" [(ngModel)]="toDate" class="border rounded px-2 py-1 text-sm w-full max-w-md">
+    <div class="flex gap-2 justify-end">
+    <button (click)="applyDateFilter()" class="bg-blue-900 text-white px-3 py-1.5 rounded text-sm w-60">Apply Filters</button>
+    <button (click)="clearDateFilter()" class="border px-3 py-1.5 rounded text-sm">Clear</button>
+  </div>
+  </div>
+  
+</div>
+
+
+
+
+
+    <div *ngIf="ledgers.length" class="space-y-5 mt-6">
+      <div class="w-full rounded-lg shadow-sm border-l-4 border-blue-500 bg-gray-50 p-4">
+        <div class="flex justify-between items-center bg-blue-50 px-4 py-4 rounded-t-lg">
+          <div>
+            <div class="font-semibold text-blue-800">Customer ID: {{ selectedCustomer }}</div>
+            <div class="text-sm text-gray-500">Ledger transactions for this customer</div>
+          </div>
+
+          <div class="bg-blue-100 text-blue-800 font-semibold px-4 py-2 rounded-lg shadow whitespace-nowrap">
+            <!-- Final Balance: {{ finalBalance | number:'1.2-2' }} {{ currency }} <br> -->
+            Balance: {{ combinedBalance | number:'1.2-2' }} {{ currency }}
+          </div>
+        </div>    
+
+        <div class="overflow-x-auto mt-4">
+          <table class="w-full text-sm text-left border-t border-gray-100">
+  <thead class="bg-gray-50">
+    <tr>
+      <th class="py-2 px-4">Date</th>
+      <th class="py-2 px-4">Description</th>
+      <th class="py-2 px-4 text-right text-green-600">Debit</th>
+      <th class="py-2 px-4 text-right text-red-600">Credit</th>
+      <th class="py-2 px-4 text-right">Balance</th>
+    </tr>
+  </thead>
+  <tbody>
+<tr *ngFor="let row of filteredLedgers.length ? filteredLedgers : ledgers">
+      <td class="py-2 px-4">{{ row.date }}</td>
+      <td class="py-2 px-4">{{ row.description || '-' }}</td>
+      <td class="py-2 px-4 text-right text-green-700">{{ row.debit | number:'1.2-2' }}</td>
+      <td class="py-2 px-4 text-right text-red-700">{{ row.credit | number:'1.2-2' }}</td>
+<td class="py-2 px-4 text-right font-semibold">
+  {{ row.computedBalance | number:'1.2-2' }} {{ currency }}
+</td>
+    </tr>
+
+    <!-- Total Row -->
+    <!-- <tr class="bg-blue-100 font-semibold text-blue-900 border-t">
+      <td class="py-2 px-4" colspan="2">TOTAL</td>
+      <td class="py-2 px-4 text-right">{{ totalDebit | number:'1.2-2' }}</td>
+      <td class="py-2 px-4 text-right">{{ totalCredit | number:'1.2-2' }}</td>
+      <td class="py-2 px-4 text-right">{{ combinedBalance | number:'1.2-2' }} {{ currency }}</td>
+    </tr> -->
+  </tbody>
+</table>
+
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+</div>

@@ -1,0 +1,210 @@
+<!-- Outer wrapper with spacing and max width -->
+<div class="bg-gray-50 px-4 sm:px-8 lg:px-16 py-8">
+    <div class="max-w-screen-xl mx-auto">
+
+        <!-- Page Header -->
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6">
+            <div class="mb-4 sm:mb-0">
+                <h1 class="text-2xl sm:text-3xl font-bold text-gray-800 mb-2">Accounts Management</h1>
+                <p class="text-sm text-gray-600">Manage your chart of accounts</p>
+            </div>
+            <button (click)="openModal()"
+                class="flex items-center justify-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200 text-sm font-medium">
+                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                </svg>
+                Add Account
+            </button>
+        </div>
+        <!-- Add Account Modal -->
+    <div *ngIf="isModalOpen" class="fixed inset-0 bg-[rgba(0,0,0,0.2)] z-50 flex items-center justify-center">
+            <div class="bg-white rounded-lg shadow-lg w-full max-w-xl p-6 relative z-50 pointer-events-auto">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-xl font-semibold text-blue-700"> Add New Account</h2>
+                    <button (click)="closeModal()"
+                        class="text-gray-500 hover:text-gray-800 text-lg font-bold">&times;</button>
+                </div>
+
+                <form (ngSubmit)="submit()" class="space-y-4">
+                    <!-- Name -->
+                    <div>
+                        <label class="block text-sm font-medium mb-1">Name</label>
+                        <input [(ngModel)]="name" name="name" required
+                            class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400" />
+                    </div>
+
+                    <!-- Parent Account -->
+                    <div>
+                        <label class="block text-sm font-medium mb-1">Parent Account</label>
+                        <select [(ngModel)]="parent" name="parent"
+                            class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400">
+                            <option [ngValue]="null">-- None --</option>
+                            <option *ngFor="let acc of parentAccounts" [ngValue]="acc.id">{{ acc.name }}</option>
+                        </select>
+                    </div>
+
+                    <!-- Type -->
+                    <div>
+                        <label class="block text-sm font-medium mb-1">Type</label>
+                        <select [(ngModel)]="type" name="type" required
+                            class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400">
+                            <option value="">-- Choose --</option>
+                            <option value="customer">Customer</option>
+                            <option value="supplier">Supplier</option>
+                            <option value="asset">Asset</option>
+                            <option value="liability">Liability</option>
+                            <option value="equity">Equity</option>
+                            <option value="income">Income</option>
+                            <option value="expense">Expense</option>
+                        </select>
+                    </div>
+
+                    <!-- Opening Balance -->
+                    <div>
+                        <label class="block text-sm font-medium mb-1">Opening Balance</label>
+                        <input type="number" [(ngModel)]="opening_balance" name="opening_balance"
+                            class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400" />
+                    </div>
+
+                    <!-- Currency -->
+                    <div>
+                        <label class="block text-sm font-medium mb-1">Currency</label>
+                        <select [(ngModel)]="currency" name="currency"
+                            class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400">
+                            <option value="AED">AED - UAE Dirham</option>
+                            <option value="INR">INR - Indian Rupee</option>
+                            <option value="USD">USD - US Dollar</option>
+                            <option value="EUR">EUR - Euro</option>
+                            <option value="GBP">GBP - British Pound</option>
+                        </select>
+                    </div>
+
+                    <!-- Status -->
+                    <div>
+                        <label class="block text-sm font-medium mb-1">Status</label>
+                        <select [(ngModel)]="status" name="status"
+                            class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400">
+                            <option value="active">Active</option>
+                            <option value="inactive">Inactive</option>
+                        </select>
+                    </div>
+
+                    <!-- Buttons -->
+                    <div class="flex justify-end space-x-2 pt-4">
+                        <!-- <button type="button" class="bg-gray-300 text-gray-800 px-4 py-2 rounded"
+                            (click)="closeModal()">Cancel</button> -->
+                                <button type="submit"
+                                    class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 block mx-auto mt-4">
+                                    Create Account
+                                </button>
+
+                    </div>
+                </form>
+            </div>
+        </div>
+
+
+        <!-- Accounts Table -->
+        <div class="bg-white border border-gray-200 rounded-lg">
+            <!-- Table Header -->
+            <div class="px-6 py-5 border-b border-gray-200">
+                <h3 class="text-lg font-semibold text-gray-800">All Accounts</h3>
+            </div>
+
+            <!-- Table Content -->
+            <div class="overflow-x-auto">
+                <table class="w-full">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th
+                                class="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                                Name</th>
+                            <th
+                                class="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                                Parent Account</th>
+                            <th
+                                class="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                                Type</th>
+                            <th
+                                class="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                                Opening Balance</th>
+                            <th
+                                class="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                                Current Balance</th>
+                            <th
+                                class="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                                Currency</th>
+                            <th
+                                class="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                                Status</th>
+                            <th
+                                class="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                                Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+
+<tr *ngFor="let account of accounts" class="hover:bg-gray-50 transition-colors duration-150">
+  <td class="px-6 py-4 whitespace-nowrap">
+    <div class="text-base font-medium text-gray-800">{{ account.name }}</div>
+  </td>
+  <td class="px-6 py-4 whitespace-nowrap">
+    <div class="text-sm text-gray-700">{{ getParentAccountName(account.parent) }}</div>
+  </td>
+  <td class="px-6 py-4 whitespace-nowrap">
+    <span class="inline-flex px-2 py-1 text-xs font-medium rounded-full"
+          [ngClass]="{
+            'bg-green-100 text-green-800': account.type === 'asset',
+            'bg-blue-100 text-blue-800': account.type === 'customer',
+            'bg-yellow-100 text-yellow-800': account.type === 'supplier',
+            'bg-purple-100 text-purple-800': account.type === 'income',
+            'bg-red-100 text-red-800': account.type === 'expense',
+            'bg-gray-100 text-gray-800': account.type === 'liability' || account.type === 'equity'
+          }">
+      {{ account.type }}
+    </span>
+  </td>
+  <td class="px-6 py-4 whitespace-nowrap">
+    <div class="text-sm text-gray-700">{{ account.opening_balance || 0 }}</div>
+  </td>
+  <td class="px-6 py-4 whitespace-nowrap">
+    <div class="text-base font-semibold text-gray-800">{{ account.current_balance || account.opening_balance || 0 }}</div>
+  </td>
+  <td class="px-6 py-4 whitespace-nowrap">
+    <div class="text-sm text-gray-700">{{ account.currency }}</div>
+  </td>
+  <td class="px-6 py-4 whitespace-nowrap">
+    <span class="inline-flex px-2 py-1 text-xs font-medium rounded-full bg-gray-800 text-white">
+      {{ account.status }}
+    </span>
+  </td>
+  <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+    <div class="flex space-x-3">
+  <button (click)="editAccount(account)" class="text-gray-400 hover:text-blue-600" title="Edit Account">
+    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+        d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z">
+      </path>
+    </svg>
+  </button>
+
+  <button (click)="deleteAccount(account.id)" class="text-gray-400 hover:text-red-600" title="Delete Account">
+    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+        d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16">
+      </path>
+    </svg>
+  </button>
+</div>
+
+  </td>
+</tr>
+
+
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+</div>

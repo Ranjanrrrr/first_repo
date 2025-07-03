@@ -30,4 +30,8 @@ export class JournalService {
   getAllAccounts(): Observable<any[]> {
     return this.http.get<any[]>(`${this.baseUrl}/accounts/`);
   }
+  getEntriesByAccount(accountId: string): Observable<any[]> {
+  return this.http.get<any[]>(`http://127.0.0.1:8000/api/journal/${accountId}/entries/`);
+}
+
 }

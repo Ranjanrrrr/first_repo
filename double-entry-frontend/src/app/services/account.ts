@@ -38,5 +38,10 @@ export class AccountService {
   deleteAccount(id: number): Observable<any> {
     return this.http.delete(`${this.baseUrl}${id}/`);
   }
+  getTrialBalance(filters?: any) {
+  // Replace /trial-balance with your actual API
+  return this.http.get('/api/trial-balance', { params: filters });
+}
+
 
 }

@@ -54,6 +54,14 @@ export const routes: Routes = [
       {
         path:'reports',
         loadChildren:() => import('./pages/report/report.routes').then(m =>m.ReportRoutes)
+      },
+      {
+        path:'trial-balance',
+        loadChildren:() => import('./pages/trial-balance/trial-balance.routes').then(m =>m.TrialBalanceRoutes)
+      },
+      {
+        path:'journal-book',
+        loadChildren:() => import('./pages/journal-book/journal-book.routes').then(m =>m.JournalBookRoutes)
       }
 
     ]

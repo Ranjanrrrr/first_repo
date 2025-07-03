@@ -1,0 +1,78 @@
+<div class="bg-gray-50 px-4 sm:px-8 lg:px-16 py-8">
+  <div class="max-w-screen-xl mx-auto">
+    <h1 class="text-3xl font-bold text-gray-800 mb-2">Trial Balance</h1>
+    <p class="text-sm text-gray-600 mb-6">Summary of all account balances to verify accuracy</p>
+
+    <!-- Filters -->
+    <div class="bg-white rounded-lg shadow p-4 sm:p-6 mb-6">
+      <h2 class="font-semibold text-gray-700 mb-4 flex items-center">
+        <svg class="w-5 h-5 mr-2 text-gray-500" fill="none" stroke="currentColor" stroke-width="2"
+          viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round"
+            d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2H3V4zm0 4h18v12a1 1 0 01-1 1H4a1 1 0 01-1-1V8z" />
+        </svg>
+        Filters
+      </h2>
+      <div class="grid sm:grid-cols-4 gap-4">
+        <input type="date" [(ngModel)]="fromDate" class="border rounded px-3 py-2 w-full text-sm" placeholder="From Date">
+        <input type="date" [(ngModel)]="toDate" class="border rounded px-3 py-2 w-full text-sm" placeholder="To Date">
+        <select [(ngModel)]="ledgerFilter" class="border rounded px-3 py-2 w-full text-sm">
+          <option>All Ledgers</option>
+          <option>Asset</option>
+          <option>Liability</option>
+          <option>Income</option>
+          <option>Expense</option>
+        </select>
+        <div class="flex gap-2">
+          <button (click)="applyFilters()" class="bg-blue-900 text-white rounded px-3 py-2 w-full">Apply Filters</button>
+          <button (click)="clearFilters()" class="border rounded px-3 py-2 w-full">Clear</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Report -->
+    <div class="bg-white rounded-lg shadow p-4 sm:p-6">
+      <div class="flex justify-between items-center mb-4">
+        <h2 class="font-semibold text-gray-700">Trial Balance Report</h2>
+        <div class="flex gap-2">
+          <button (click)="exportExcel()" class="flex items-center gap-1 border border-gray-300 rounded px-3 py-1.5 text-sm text-gray-600 hover:bg-gray-100">
+            <i class="fas fa-file-excel"></i> Excel
+          </button>
+          <button (click)="exportPDF()" class="flex items-center gap-1 border border-gray-300 rounded px-3 py-1.5 text-sm text-gray-600 hover:bg-gray-100">
+            <i class="fas fa-file-pdf"></i> PDF
+          </button>
+        </div>
+      </div>
+
+      <div class="overflow-x-auto">
+        <table class="w-full text-sm text-left border-t border-gray-100">
+          <thead class="bg-gray-50">
+            <tr>
+              <th class="py-2 px-4">Account Name</th>
+              <th class="py-2 px-4">Account Type</th>
+              <th class="py-2 px-4 text-green-600 text-right">Debit</th>
+              <th class="py-2 px-4 text-red-600 text-right">Credit</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let acc of accounts" class="border-b">
+              <td class="py-2 px-4">{{ acc.name }}</td>
+              <td class="py-2 px-4">{{ acc.type }}</td>
+              <td class="py-2 px-4 text-right">{{ acc.debit | number:'1.2-2' }}</td>
+              <td class="py-2 px-4 text-right">{{ acc.credit | number:'1.2-2' }}</td>
+            </tr>
+            <tr class="font-semibold bg-gray-50">
+              <td colspan="2" class="py-2 px-4">Total</td>
+              <td class="py-2 px-4 text-right">{{ totalDebit | number:'1.2-2' }}</td>
+              <td class="py-2 px-4 text-right">{{ totalCredit | number:'1.2-2' }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div *ngIf="totalDebit !== totalCredit" class="mt-4 bg-red-50 border border-red-200 text-red-700 p-3 rounded">
+         Warning: Trial Balance is not balanced! Difference: {{ difference | number:'1.2-2' }}
+      </div>
+    </div>
+  </div>
+</div>

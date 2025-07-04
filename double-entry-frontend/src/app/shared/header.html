@@ -2,43 +2,44 @@
   <div class="flex items-center justify-between h-20 w-full">
 
     <!-- Left: Logo + Navigation -->
-    <div class="flex items-center space-x-8 pl-6">
+    <div class="flex items-center space-x-20 pl-6">
       <!-- Logo -->
       <div class="text-3xl font-extrabold text-blue-700 tracking-tight">
         AccounTech
       </div>
 
       <!-- Navigation Links -->
-      <div class="hidden sm:flex items-center space-x-6">
+      <div class="hidden sm:flex items-center space-x-4">
         <a routerLink="/dashboard" routerLinkActive="bg-blue-600 text-white"
-          class="px-4 py-2 rounded text-lg font-semibold text-gray-700 hover:bg-blue-100 hover:text-blue-700 transition"
+          class="px-4 py-2 rounded-xl font-semibold text-gray-700 hover:bg-blue-100 hover:text-blue-700 shadow-sm hover:shadow-md transition duration-200"
           [routerLinkActiveOptions]="{ exact: true }">Dashboard</a>
 
         <a routerLink="/accounts" routerLinkActive="bg-blue-600 text-white"
-          class="px-4 py-2 rounded text-lg font-semibold text-gray-700 hover:bg-blue-100 hover:text-blue-700 transition">
+          class="px-4 py-2 rounded-xl font-semibold text-gray-700 hover:bg-blue-100 hover:text-blue-700 shadow-sm hover:shadow-md transition duration-200">
           Accounts</a>
 
         <a routerLink="/journal-entries" routerLinkActive="bg-blue-600 text-white"
-          class="px-4 py-2 rounded text-lg font-semibold text-gray-700 hover:bg-blue-100 hover:text-blue-700 transition">
+          class="px-4 py-2 rounded-xl font-semibold text-gray-700 hover:bg-blue-100 hover:text-blue-700 shadow-sm hover:shadow-md transition duration-200">
           Journal Entries</a>
 
         <a routerLink="/customer-ledgers" routerLinkActive="bg-blue-600 text-white"
-          class="px-4 py-2 rounded text-lg font-semibold text-gray-700 hover:bg-blue-100 hover:text-blue-700 transition">
+          class="px-4 py-2 rounded-xl font-semibold text-gray-700 hover:bg-blue-100 hover:text-blue-700 shadow-sm hover:shadow-md transition duration-200">
           Customer Ledgers</a>
 
         <a routerLink="/supplier-ledgers" routerLinkActive="bg-blue-600 text-white"
-          class="px-4 py-2 rounded text-lg font-semibold text-gray-700 hover:bg-blue-100 hover:text-blue-700 transition">
+          class="px-4 py-2 rounded-xl font-semibold text-gray-700 hover:bg-blue-100 hover:text-blue-700 shadow-sm hover:shadow-md transition duration-200">
           Supplier Ledgers</a>
 
         <a routerLink="/reports" routerLinkActive="bg-blue-600 text-white"
-          class="px-4 py-2 rounded text-lg font-semibold text-gray-700 hover:bg-blue-100 hover:text-blue-700 transition">
+          class="px-4 py-2 rounded-xl font-semibold text-gray-700 hover:bg-blue-100 hover:text-blue-700 shadow-sm hover:shadow-md transition duration-200">
           Reports</a>
       </div>
     </div>
 
     <!-- Right: Logout Button -->
     <div class="hidden sm:block pr-6">
-      <button (click)="logout()" class="px-5 py-2 text-lg bg-red-500 text-white rounded hover:bg-red-600 transition">
+      <button (click)="logout()"
+        class="px-5 py-2 text-lg bg-red-500 text-white rounded-lg shadow hover:bg-red-600 transition duration-200 ease-in-out">
         Logout
       </button>
     </div>
@@ -53,12 +54,12 @@
 
   <!-- Mobile Dropdown Nav -->
   <div *ngIf="menuOpen" class="sm:hidden px-6 py-4 space-y-3 border-t text-gray-700 text-lg">
-    <a routerLink="/dashboard" routerLinkActive="active" class="block hover:text-blue-600 transition">Dashboard</a>
-    <a routerLink="/add-account" routerLinkActive="active" class="block hover:text-blue-600 transition">Accounts</a>
-    <a routerLink="/journal-entries" routerLinkActive="active" class="block hover:text-blue-600 transition">Journal Entries</a>
-    <a routerLink="/customer-ledgers" routerLinkActive="active" class="block hover:text-blue-600 transition">Customer Ledgers</a>
-    <a routerLink="/supplier-ledgers" routerLinkActive="active" class="block hover:text-blue-600 transition">Supplier Ledgers</a>
-    <a routerLink="/reports" routerLinkActive="active" class="block hover:text-blue-600 transition">Reports</a>
+    <a routerLink="/dashboard" routerLinkActive="active" class="block rounded-md px-3 py-2 hover:bg-blue-100 hover:text-blue-700 transition">Dashboard</a>
+    <a routerLink="/accounts" routerLinkActive="active" class="block rounded-md px-3 py-2 hover:bg-blue-100 hover:text-blue-700 transition">Accounts</a>
+    <a routerLink="/journal-entries" routerLinkActive="active" class="block rounded-md px-3 py-2 hover:bg-blue-100 hover:text-blue-700 transition">Journal Entries</a>
+    <a routerLink="/customer-ledgers" routerLinkActive="active" class="block rounded-md px-3 py-2 hover:bg-blue-100 hover:text-blue-700 transition">Customer Ledgers</a>
+    <a routerLink="/supplier-ledgers" routerLinkActive="active" class="block rounded-md px-3 py-2 hover:bg-blue-100 hover:text-blue-700 transition">Supplier Ledgers</a>
+    <a routerLink="/reports" routerLinkActive="active" class="block rounded-md px-3 py-2 hover:bg-blue-100 hover:text-blue-700 transition">Reports</a>
 
     <!-- Mobile Logout -->
     <button (click)="logout()" class="w-full text-left mt-3 text-red-600 text-lg hover:underline">

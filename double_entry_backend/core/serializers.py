@@ -6,7 +6,6 @@ class AccountSerializer(serializers.ModelSerializer):
     class Meta:
         model = Account
         fields = '__all__'
-        # read_only_fields = ['created_by']
 
 class JournalEntryLineSerializer(serializers.ModelSerializer):
     account_name = serializers.CharField(source='account.name', read_only=True)
@@ -15,11 +14,7 @@ class JournalEntryLineSerializer(serializers.ModelSerializer):
         model = JournalEntryLine
         fields = ['id', 'account', 'account_name', 'debit', 'credit','narration']
 
-    # def to_internal_value(self, data):
-    #     if 'account' in data:
-    #         data['account']=data['account'] if data['account'] not in [None,"null",""] else None
-    #     dataa= super().to_internal_value(data)
-    #     return dataa
+   
     def to_internal_value(self, data):
         # Handle account
         account = data.get('account')

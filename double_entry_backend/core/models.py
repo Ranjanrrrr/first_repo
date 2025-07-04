@@ -17,13 +17,12 @@ class Account(models.Model):
         ('expense', 'Expense'),
     ]
 
-    CURRENCIES = [
+    CURRENCIES = [      
         ('AED', 'AED - UAE Dirham'),
         ('INR', 'INR - Indian Rupee'),
         ('USD', 'USD - US Dollar'),
         ('EUR', 'EUR - Euro'),
         ('GBP', 'GBP - British Pound'),
-        # Add more as needed
     ]
 
     STATUS_CHOICES = [
@@ -34,7 +33,7 @@ class Account(models.Model):
     name = models.CharField(max_length=100)
     parent = models.ForeignKey('self', null=True, blank=True, on_delete=models.SET_NULL, related_name='children')
     type = models.CharField(max_length=20, choices=ACCOUNT_TYPES)
-    opening_balance = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+    opening_balance = models.DecimalField(max_digits=12, decimal_places=2)
     currency = models.CharField(max_length=10, choices=CURRENCIES, default='AED')
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='active')
     created_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='accounts', null=True, blank=True)
@@ -68,7 +67,7 @@ class JournalEntryLine(models.Model):
     account = models.ForeignKey(Account, on_delete=models.PROTECT)
     debit = models.DecimalField(max_digits=12, decimal_places=2, default=0)
     credit = models.DecimalField(max_digits=12, decimal_places=2, default=0)
-    narration = models.CharField(max_length=255, blank=True, default='')  # <-- Add this line!
+    narration = models.CharField(max_length=255, blank=True, default='') 
 
     def __str__(self):
         return f"{self.account.name}: Dr {self.debit} Cr {self.credit} {self.narration}"

@@ -13,8 +13,8 @@ import { AccountService } from '../../services/account';
 export class Accounts implements OnInit {
   name = '';
   type = '';
-  opening_balance = 0;
-  currency = 'AED';
+  opening_balance:number|null=null;
+  currency: any = '';
   status = 'active';
   parent: number | null = null;
   isModalOpen = false;
@@ -56,7 +56,7 @@ export class Accounts implements OnInit {
     const payload = {
       name: this.name.trim(),
       type: this.type.trim(),
-      opening_balance: this.opening_balance,
+      opening_balance: this.opening_balance??0,
       currency: this.currency,
       status: this.status,
       parent: this.parent || null

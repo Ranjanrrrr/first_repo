@@ -7,6 +7,8 @@ from rest_framework.permissions import AllowAny
 from .models import Account, JournalEntry, JournalEntryLine
 from .serializers import AccountSerializer, JournalEntrySerializer
 from rest_framework.pagination import PageNumberPagination
+from django.db import transaction
+from rest_framework.exceptions import ValidationError
 
 
 
@@ -80,8 +82,35 @@ class JournalEntryViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         return self.queryset.filter(created_by=self.request.user)
 
+    
+
     def perform_create(self, serializer):
-        serializer.save(created_by=self.request.user)
+     with transaction.atomic():
+        journal_entry = serializer.save(created_by=self.request.user)
+        lines_data = self.request.data.get('lines', [])
+
+        if not lines_data:
+            raise ValidationError("At least one debit and one credit line required.")
+
+        total_debit = 0
+        total_credit = 0
+
+        for line in lines_data:
+            debit = float(line.get('debit', 0) or 0)
+            credit = float(line.get('credit', 0) or 0)
+            total_debit += debit
+            total_credit += credit
+
+            JournalEntryLine.objects.create(
+                journal_entry=journal_entry,
+                account_id=line['account_id'],
+                debit=debit,
+                credit=credit
+            )
+
+        if total_debit != total_credit:
+            raise ValidationError("Debits and credits must balance.")
+
 
 
 class RegisterView(APIView):

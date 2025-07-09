@@ -1,7 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { HttpClientModule } from '@angular/common/http';
 import { AccountService } from '../../services/account';
 import { LedgerService } from '../../services/ledger';
 
@@ -13,7 +12,7 @@ import autoTable from 'jspdf-autotable';
 @Component({
   selector: 'app-customer-ledgers',
   standalone: true,
-  imports: [CommonModule, FormsModule, HttpClientModule],
+  imports: [CommonModule, FormsModule],
   templateUrl: './customer-ledgers.html'
 })
 export class CustomerLedgers implements OnInit {
@@ -38,47 +37,37 @@ export class CustomerLedgers implements OnInit {
 
   ngOnInit(): void {
     this.accountService.getAllCustomers().subscribe({
-      next: (data) => this.customers = data,
+      next: (data) => this.customers = data.results,
       error: (err) => console.error('Error loading customers', err)
     });
   }
+  openingBalance: number = 0;
 
   onCustomerSelect(): void {
     if (this.selectedCustomer) {
       this.ledgerService.getCustomerLedger(this.selectedCustomer).subscribe({
         next: (data) => {
           this.ledgers = data.ledger || [];
-          this.finalBalance = data.current_balance || 0;
+          this.finalBalance = Math.abs(data.current_balance || 0); // ✅ No negative sign in frontend
           this.totalDebit = this.ledgers.reduce((sum, row) => sum + (row.debit || 0), 0);
           this.totalCredit = this.ledgers.reduce((sum, row) => sum + (row.credit || 0), 0);
-          this.combinedBalance = this.finalBalance + this.totalDebit + this.totalCredit;
+          
 
           const selected = this.customers.find(c => c.id === +this.selectedCustomer);
           this.currency = selected?.currency || '';
+          this.openingBalance = selected?.opening_balance || 0; // ← Add this line
 
-          this.updateRunningBalances();
+          // this.updateRunningBalances();
         },
         error: (err) => console.error('Error loading ledger', err)
       });
     }
   }
 
-  updateRunningBalances(): void {
-    let runningDebit = 0;
-    let runningCredit = 0;
-    let openingBalance = this.finalBalance || 0;
+  getAbsolute(val: number): number {
+  return Math.abs(val || 0);
+}
 
-    this.ledgers.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
-
-    this.ledgers = this.ledgers.map((row) => {
-      const debit = row.debit || 0;
-      const credit = row.credit || 0;
-      runningDebit += debit;
-      runningCredit += credit;
-      const computedBalance = openingBalance + runningDebit + runningCredit;
-      return { ...row, computedBalance };
-    });
-  }
 
   applyDateFilter(): void {
     if (!this.fromDate && !this.toDate) {

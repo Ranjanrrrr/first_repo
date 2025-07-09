@@ -1,0 +1,65 @@
+<nav class="bg-white border-b border-gray-200 text-base shadow-sm w-full">
+  <div class="flex flex-wrap items-center justify-between w-full h-20">
+
+    <!-- Left: Logo + Navigation -->
+    <div class="flex items-center gap-6 sm:gap-8 xl:gap-12 pl-4">
+      <!-- Logo -->
+      <div class="text-2xl sm:text-3xl font-extrabold text-blue-700 tracking-tight">
+        AccounTech
+      </div>
+
+      <!-- Navigation Links (show on xl, collapse below 1280) -->
+      <div class="hidden xl:flex flex-wrap items-center gap-4 ml-8">
+        <a routerLink="/dashboard" routerLinkActive="bg-blue-600 text-white"
+          class="px-3 sm:px-4 py-2 rounded-xl font-semibold text-gray-700 hover:bg-blue-100 hover:text-blue-700 shadow-sm hover:shadow-md transition"
+          [routerLinkActiveOptions]="{ exact: true }">Dashboard</a>
+
+        <a routerLink="/accounts" routerLinkActive="bg-blue-600 text-white"
+          class="px-3 sm:px-4 py-2 rounded-xl font-semibold text-gray-700 hover:bg-blue-100 hover:text-blue-700 shadow-sm hover:shadow-md transition">
+          Accounts</a>
+
+        <a routerLink="/journal-entries" routerLinkActive="bg-blue-600 text-white"
+          class="px-3 sm:px-4 py-2 rounded-xl font-semibold text-gray-700 hover:bg-blue-100 hover:text-blue-700 shadow-sm hover:shadow-md transition">
+          Journal Entries</a>
+
+        <a routerLink="/customer-ledgers" routerLinkActive="bg-blue-600 text-white"
+          class="px-3 sm:px-4 py-2 rounded-xl font-semibold text-gray-700 hover:bg-blue-100 hover:text-blue-700 shadow-sm hover:shadow-md transition">
+          Customer Ledgers</a>
+
+        <a routerLink="/supplier-ledgers" routerLinkActive="bg-blue-600 text-white"
+          class="px-3 sm:px-4 py-2 rounded-xl font-semibold text-gray-700 hover:bg-blue-100 hover:text-blue-700 shadow-sm hover:shadow-md transition">
+          Supplier Ledgers</a>
+
+        <a routerLink="/reports" routerLinkActive="bg-blue-600 text-white"
+          class="px-3 sm:px-4 py-2 rounded-xl font-semibold text-gray-700 hover:bg-blue-100 hover:text-blue-700 shadow-sm hover:shadow-md transition">
+          Reports</a>
+      </div>
+    </div>
+
+    <!-- Right: Logout -->
+    <div class="hidden xl:block pr-4">
+      <button (click)="logout()"
+        class="px-4 sm:px-5 py-2 text-base sm:text-lg bg-red-500 text-white rounded-lg shadow hover:bg-red-600 transition">
+        Logout
+      </button>
+    </div>
+
+    <!-- Mobile toggle -->
+    <button class="xl:hidden text-gray-700 pr-4 focus:outline-none" (click)="menuOpen = !menuOpen">
+      <svg class="w-7 h-7" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/>
+      </svg>
+    </button>
+  </div>
+
+  <!-- Mobile menu -->
+  <div *ngIf="menuOpen" class="xl:hidden px-4 py-4 space-y-2 border-t text-gray-700">
+    <a routerLink="/dashboard" routerLinkActive="active" class="block rounded-md px-3 py-2 hover:bg-blue-100 hover:text-blue-700">Dashboard</a>
+    <a routerLink="/accounts" routerLinkActive="active" class="block rounded-md px-3 py-2 hover:bg-blue-100 hover:text-blue-700">Accounts</a>
+    <a routerLink="/journal-entries" routerLinkActive="active" class="block rounded-md px-3 py-2 hover:bg-blue-100 hover:text-blue-700">Journal Entries</a>
+    <a routerLink="/customer-ledgers" routerLinkActive="active" class="block rounded-md px-3 py-2 hover:bg-blue-100 hover:text-blue-700">Customer Ledgers</a>
+    <a routerLink="/supplier-ledgers" routerLinkActive="active" class="block rounded-md px-3 py-2 hover:bg-blue-100 hover:text-blue-700">Supplier Ledgers</a>
+    <a routerLink="/reports" routerLinkActive="active" class="block rounded-md px-3 py-2 hover:bg-blue-100 hover:text-blue-700">Reports</a>
+    <button (click)="logout()" class="w-full text-left mt-2 text-red-600 hover:underline">Logout</button>
+  </div>
+</nav>

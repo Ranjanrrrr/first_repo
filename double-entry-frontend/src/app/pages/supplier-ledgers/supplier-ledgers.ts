@@ -30,6 +30,7 @@ export class SupplierLedgers implements OnInit {
 
   fromDate: string = '';
   toDate: string = '';
+  openingBalance:number=0;
 
   constructor(
     private accountService: AccountService,
@@ -38,7 +39,7 @@ export class SupplierLedgers implements OnInit {
 
   ngOnInit(): void {
     this.accountService.getAllSuppliers().subscribe({
-      next: (data) => this.suppliers = data,
+      next: (data) => this.suppliers = data.results,
       error: (err) => console.error('Error loading suppliers', err)
     });
   }
@@ -48,44 +49,24 @@ export class SupplierLedgers implements OnInit {
       this.ledgerservice.getSupplierLedger(this.selectedSupplier).subscribe({
         next: (data) => {
           this.ledgers = data.ledger || [];
-          this.finalBalance = data.current_balance || 0;
+          this.finalBalance = Math.abs(data.current_balance || 0); // ✅ No negative sign in frontend
 
           this.totalDebit = this.ledgers.reduce((sum, row) => sum + (row.debit || 0), 0);
           this.totalCredit = this.ledgers.reduce((sum, row) => sum + (row.credit || 0), 0);
-          this.combinedBalance = this.finalBalance + this.totalDebit + this.totalCredit;
 
           const selected = this.suppliers.find(c => c.id === +this.selectedSupplier);
           this.currency = selected?.currency || '';
+          this.openingBalance = selected?.opening_balance || 0; // ← Add this line
 
-          this.updateRunningBalances();
+          // this.updateRunningBalances();
         },
         error: (err) => console.error('Error loading ledger', err)
       });
     }
   }
-
-  updateRunningBalances(): void {
-    let runningDebit = 0;
-    let runningCredit = 0;
-    let openingBalance = this.finalBalance || 0;
-
-    this.ledgers.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
-
-    this.ledgers = this.ledgers.map((row) => {
-      const debit = row.debit || 0;
-      const credit = row.credit || 0;
-
-      runningDebit += debit;
-      runningCredit += credit;
-
-      const computedBalance = openingBalance + runningDebit + runningCredit;
-
-      return {
-        ...row,
-        computedBalance
-      };
-    });
-  }
+    getAbsolute(val: number): number {
+      return Math.abs(val || 0);
+    }
 
   applyDateFilter(): void {
     if (!this.fromDate && !this.toDate) {

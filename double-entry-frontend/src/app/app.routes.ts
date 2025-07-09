@@ -1,7 +1,3 @@
-// import { Routes } from '@angular/router';
-
-// export const routes: Routes = [];
-
 import { Routes } from '@angular/router';
 import { LoginPage } from './pages/login.page';
 import { RegisterPage } from './pages/register';
@@ -10,19 +6,7 @@ import { MainLayout } from './layouts/main-layout';
 export const routes: Routes = [
   { path: '', redirectTo: 'login', pathMatch: 'full' },
   { path: 'login', component: LoginPage },
-    { path: 'register', component: RegisterPage },
-    
-  // {
-  //   path: 'dashboard',
-  //   loadChildren: () =>
-  //     import('./pages/dashboard/dashboard.routes').then(m => m.dashboardRoutes)
-  // },
-  
-  //  {
-  //   path: 'add-account',
-  //   loadChildren: () =>
-  //     import('./pages/add-account/add-account.routes').then(m => m.addAccountRoutes)
-  // }
+  { path: 'register', component: RegisterPage },
   {
     path: '',
     component: MainLayout,
@@ -31,10 +15,6 @@ export const routes: Routes = [
         path: 'dashboard',
         loadChildren: () => import('./pages/dashboard/dashboard.routes').then(m => m.dashboardRoutes)
       },
-      // {
-      //   path: 'add-account',
-      //   loadChildren: () => import('./pages/add-account/add-account.routes').then(m => m.addAccountRoutes)
-      // },
       {
         path: 'accounts',
         loadChildren: () => import('./pages/accounts/accounts.routes').then(m => m.AccountsRoutes)
@@ -63,7 +43,6 @@ export const routes: Routes = [
         path:'journal-book',
         loadChildren:() => import('./pages/journal-book/journal-book.routes').then(m =>m.JournalBookRoutes)
       }
-
     ]
   }
 ];

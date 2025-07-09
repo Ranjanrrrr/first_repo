@@ -3,7 +3,7 @@
 
     <div class="flex justify-between items-center mb-4">
       <div>
-        <h1 class="text-4xl font-extrabold text-blue-800 mb-1 drop-shadow">Trial Balance</h1>
+        <h1 class="text-4xl font-extrabold text-blue-700 mb-1 drop-shadow">Trial Balance</h1>
         <p class="text-base text-gray-700 italic">Summary of all account balances to verify accuracy</p>
       </div>
       <div class="flex gap-2">
@@ -51,9 +51,12 @@
           <option>Liability</option>
           <option>Income</option>
           <option>Expense</option>
+          <option>customer</option>
+          <option>supplier</option>
+          <option>equity</option>
         </select>
         <div class="flex gap-2">
-          <button (click)="applyFilters()" class="bg-blue-900 text-white rounded-md px-3 py-2 w-full hover:bg-blue-800 transition">Apply Filters</button>
+          <button (click)="applyFilters()" class="bg-blue-700 text-white rounded-md px-3 py-2 w-full hover:bg-blue-800 transition">Apply Filters</button>
           <button (click)="clearFilters()" class="border border-gray-300 rounded-md px-3 py-2 w-full hover:bg-gray-100 transition">Clear</button>
         </div>
       </div>
@@ -73,11 +76,11 @@
             </tr>
           </thead>
           <tbody>
-            <tr *ngFor="let acc of accounts" class="hover:bg-gray-50 transition border-b border-gray-100 even:bg-gray-50">
+            <tr *ngFor="let acc of filteredAccounts" class="hover:bg-gray-50 transition border-b border-gray-100 even:bg-gray-50">
               <td class="py-2 px-4">{{ acc.name }}</td>
               <td class="py-2 px-4">{{ acc.type }}</td>
-              <td class="py-2 px-4 text-right">{{ acc.debit | number:'1.2-2' }}</td>
-              <td class="py-2 px-4 text-right">{{ acc.credit | number:'1.2-2' }}</td>
+              <td class="py-2 px-4 text-right text-green-700 ">{{ acc.debit | number:'1.2-2' }}</td>
+              <td class="py-2 px-4 text-right text-red-700">{{ acc.credit | number:'1.2-2' }}</td>
             </tr>
             <tr class="font-semibold bg-gray-100">
               <td colspan="2" class="py-2 px-4">Total</td>

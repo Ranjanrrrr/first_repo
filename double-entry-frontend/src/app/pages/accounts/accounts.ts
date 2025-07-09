@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AccountService } from '../../services/account';
+import { LedgerService } from '../../services/ledger';
 
 @Component({
   selector: 'app-accounts',
@@ -13,17 +14,27 @@ import { AccountService } from '../../services/account';
 export class Accounts implements OnInit {
   name = '';
   type = '';
-  opening_balance:number|null=null;
+  opening_balance: number | null = null;
   currency: any = '';
   status = 'active';
   parent: number | null = null;
   isModalOpen = false;
-  currentEditingId: number | null = null;  // Track if editing
+  currentEditingId: number | null = null;
 
   parentAccounts: any[] = [];
   accounts: any[] = [];
+  totalCount = 0;
+  currentPage = 1;
+  pageSize = 10;
+  totalPages = 1;
+  paginationArray: (number | string)[] = [];
+  pageStart = 0;
+  pageEnd = 0;
 
-  constructor(private accountService: AccountService) {}
+  constructor(
+    private accountService: AccountService,
+    private ledgerService: LedgerService
+  ) {}
 
   ngOnInit(): void {
     this.loadParentAccounts();
@@ -31,15 +42,60 @@ export class Accounts implements OnInit {
   }
 
   loadAccounts(): void {
-    this.accountService.getAllAccounts().subscribe(data => {
-      this.accounts = data;
+    const params = {
+      page: this.currentPage,
+      page_size: this.pageSize
+    };
+
+    this.accountService.getAllAccounts(params).subscribe({
+      next: (res) => {
+        this.accounts = res.results || [];
+        this.totalCount = res.count || this.accounts.length;
+        this.totalPages = Math.ceil(this.totalCount / this.pageSize);
+        this.pageStart = ((this.currentPage - 1) * this.pageSize) + 1;
+        this.pageEnd = this.pageStart + this.accounts.length - 1;
+        this.buildPaginationArray();
+
+        this.accounts.forEach(acc => {
+          this.ledgerService.getLedger(acc.id).subscribe({
+            next: ledger => acc.current_balance = ledger.current_balance,
+            error: () => acc.current_balance = 0
+          });
+        });
+      },
+      error: (err) => {
+        console.error('❌ Error loading accounts:', err);
+      }
     });
+  }
+
+  buildPaginationArray(): void {
+    const pages: (number | string)[] = [];
+    if (this.totalPages <= 5) {
+      for (let i = 1; i <= this.totalPages; i++) pages.push(i);
+    } else {
+      if (this.currentPage <= 3) {
+        pages.push(1, 2, 3, '...', this.totalPages);
+      } else if (this.currentPage >= this.totalPages - 2) {
+        pages.push(1, '...', this.totalPages - 2, this.totalPages - 1, this.totalPages);
+      } else {
+        pages.push(1, '...', this.currentPage, '...', this.totalPages);
+      }
+    }
+    this.paginationArray = pages;
+  }
+
+  changePage(page: number | string): void {
+    if (typeof page === 'number' && page >= 1 && page <= this.totalPages) {
+      this.currentPage = page;
+      this.loadAccounts();
+    }
   }
 
   loadParentAccounts(): void {
     this.accountService.getAllAccounts().subscribe({
-      next: (data) => (this.parentAccounts = data),
-      error: (err) => console.error('❌ Error fetching accounts:', err)
+      next: (data) => this.parentAccounts = data.results || data,
+      error: (err) => console.error('❌ Error fetching parent accounts:', err)
     });
   }
 
@@ -56,19 +112,26 @@ export class Accounts implements OnInit {
     const payload = {
       name: this.name.trim(),
       type: this.type.trim(),
-      opening_balance: this.opening_balance??0,
+      opening_balance: this.opening_balance ?? 0,
       currency: this.currency,
       status: this.status,
       parent: this.parent || null
     };
 
-    if (!payload.name || !payload.type) {
-      alert('⚠️ Please fill in all required fields');
+    if (!payload.name) {
+      alert('⚠️ Name is required');
+      return;
+    }
+    if (!payload.type) {
+      alert('⚠️ Type is required');
+      return;
+    }
+    if (!payload.currency) {
+      alert('⚠️ Currency is required');
       return;
     }
 
     if (this.currentEditingId) {
-      // Update existing
       this.accountService.updateAccount(this.currentEditingId, payload).subscribe({
         next: () => {
           alert('✅ Account updated');
@@ -77,11 +140,10 @@ export class Accounts implements OnInit {
         },
         error: (err) => {
           console.error('❌ Update failed:', err);
-          alert('❌ Error updating account');
+          alert(err?.error?.detail || '❌ Error updating account');
         }
       });
     } else {
-      // Create new
       this.accountService.createAccount(payload).subscribe({
         next: () => {
           alert('✅ Account created');
@@ -90,7 +152,7 @@ export class Accounts implements OnInit {
         },
         error: (err) => {
           console.error('❌ Create failed:', err);
-          alert('❌ Error creating account');
+          alert(err?.error?.detail || '❌ Error creating account');
         }
       });
     }
@@ -115,7 +177,7 @@ export class Accounts implements OnInit {
           this.loadAccounts();
         },
         error: (err) => {
-          console.error(' Delete error:', err);
+          console.error(' Delete failed:', err);
           alert(' Error deleting account');
         }
       });
@@ -137,4 +199,8 @@ export class Accounts implements OnInit {
     const parent = this.accounts.find(acc => acc.id === parentId);
     return parent ? parent.name : 'Unknown';
   }
+  getAbsolute(val: number): number {
+  return Math.abs(val || 0);
+  }
+
 }

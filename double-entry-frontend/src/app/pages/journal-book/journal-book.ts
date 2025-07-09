@@ -1,30 +1,51 @@
-import { Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { HttpClientModule } from '@angular/common/http';
 import { JournalService } from '../../services/journal';
 
 import * as XLSX from 'xlsx';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
+import { AccountService } from '../../services/account';
+
+interface JournalEntryLine {
+  account_id: number | null;
+  debit: number | null;
+  credit: number | null;
+  narration: string;
+  account_name: string;
+  currency?: string;
+}
+
+interface JournalEntry {
+  id: number;
+  date: string;
+  description: string;
+  created_at: string;
+  lines: JournalEntryLine[];
+}
 
 @Component({
   selector: 'app-journal-book',
   standalone: true,
-  imports: [CommonModule, FormsModule, HttpClientModule],
+  imports: [CommonModule, FormsModule],
   templateUrl: './journal-book.html'
 })
 export class JournalBookComponent implements OnInit {
   fromDate: string = '';
   toDate: string = '';
   ledgerFilter: string = '';
-
-  accounts: any[] = [];
-  journalEntries: any[] = [];
-  filteredEntries: any[] = [];
   generatedAt: string = '';
 
-  constructor(private journalService: JournalService) {}
+  accounts: { id: number; name: string }[] = [];
+  journalEntries: JournalEntry[] = [];
+  filteredEntries: JournalEntry[] = [];
+
+  constructor(private journalService: JournalService,
+    private accountService:AccountService,
+
+    
+  ) {}
 
   ngOnInit(): void {
     this.generatedAt = new Date().toLocaleString();
@@ -33,18 +54,29 @@ export class JournalBookComponent implements OnInit {
   }
 
   loadAccounts(): void {
-    this.journalService.getAllAccounts().subscribe({
-      next: (data) => {
-        this.accounts = data || [];
-      },
-      error: (err) => console.error('Error loading accounts', err)
-    });
-  }
+  this.accountService.getAllAccounts().subscribe({
+    next: (data: any) => {
+      this.accounts = data.results || data || [];
+    },
+    error: (err) => {
+      console.error('Error fetching accounts', err);
+      alert(' Failed to load accounts');
+    }
+  });
+}
+   getEntryDebitTotal(entry: JournalEntry): number {
+  return entry.lines.reduce((sum, line) => sum + (Number(line.debit) || 0), 0);
+}
+
+getEntryCreditTotal(entry: JournalEntry): number {
+  return entry.lines.reduce((sum, line) => sum + (Number(line.credit) || 0), 0);
+}
+
 
   loadJournalEntries(): void {
     this.journalService.getAllEntries().subscribe({
       next: (data) => {
-        this.journalEntries = data || [];
+        this.journalEntries = data?.results || data || [];
         this.filteredEntries = this.journalEntries;
         this.generatedAt = new Date().toLocaleString();
       },
@@ -58,11 +90,11 @@ export class JournalBookComponent implements OnInit {
       const from = this.fromDate ? new Date(this.fromDate) : null;
       const to = this.toDate ? new Date(this.toDate) : null;
 
-      if (from && entryDate < from) return false;
-      if (to && entryDate > to) return false;
-      if (this.ledgerFilter && entry.ledger_name !== this.ledgerFilter) return false;
+      const accountMatch = !this.ledgerFilter || entry.lines.some(line => line.account_id?.toString() === this.ledgerFilter);
 
-      return true;
+      return (!from || entryDate >= from) &&
+             (!to || entryDate <= to) &&
+             accountMatch;
     });
     this.generatedAt = new Date().toLocaleString();
   }
@@ -76,12 +108,15 @@ export class JournalBookComponent implements OnInit {
   }
 
   exportExcel(): void {
-    const data = this.filteredEntries.map(entry => ({
-      Date: entry.date,
-      Description: entry.description,
-      Debit: entry.debit || 0,
-      Credit: entry.credit || 0
-    }));
+    const data = this.filteredEntries.flatMap(entry =>
+      entry.lines.map(line => ({
+        Date: entry.date,
+        Description: entry.description,
+        Account: line.account_name,
+        Debit: line.debit || 0,
+        Credit: line.credit || 0
+      }))
+    );
     const ws = XLSX.utils.json_to_sheet(data);
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, 'Journal Book');
@@ -92,24 +127,23 @@ export class JournalBookComponent implements OnInit {
     const doc = new jsPDF();
     doc.text('Journal Book', 14, 14);
     autoTable(doc, {
-      head: [['Date', 'Description', 'Debit', 'Credit']],
-      body: this.filteredEntries.map(entry => [
-        entry.date,
-        entry.description,
-        (entry.debit || 0).toFixed(2),
-        (entry.credit || 0).toFixed(2)
-      ]),
+      head: [['Date', 'Description', 'Account', 'Debit', 'Credit']],
+      body: this.filteredEntries.flatMap(entry =>
+        entry.lines.map(line => [
+          entry.date,
+          entry.description,
+          line.account_name,
+          (Number(line.debit) || 0).toFixed(2),
+          (Number(line.credit) || 0).toFixed(2)
+
+        ])
+      ),
       startY: 20
     });
     doc.save('journal_book.pdf');
   }
+
   onAccountSelect(): void {
-  if (this.ledgerFilter) {
-    this.filteredEntries = this.journalEntries.filter(j => j.account_id == this.ledgerFilter);
-  } else {
-    this.filteredEntries = this.journalEntries;
+    this.applyFilters(); // Use same logic
   }
-}
-
-
 }

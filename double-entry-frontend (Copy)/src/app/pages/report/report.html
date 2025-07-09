@@ -1,0 +1,80 @@
+<div class="bg-gradient-to-br from-gray-50 via-white to-gray-100 px-4 sm:px-8 lg:px-16 py-8">
+  <div class="max-w-screen-xl mx-auto">
+
+<h1 class="text-2xl sm:text-3xl font-extrabold text-blue-800 mb-2 drop-shadow-md">
+  Reports
+</h1>
+
+
+    <p class="text-base text-gray-700 mb-8 italic">Generate and view various accounting reports</p>
+
+    <!-- Financial Reports -->
+    <div class="mb-10">
+      <h2 class="text-xl font-bold text-gray-800 mb-5">Financial Reports</h2>
+      <div class="grid sm:grid-cols-2 gap-6 max-w-4xl">
+
+        <div class="rounded-2xl bg-gradient-to-br from-blue-50 to-white p-6 shadow-lg hover:shadow-xl transition">
+          <h3 class="text-blue-700 text-lg font-bold flex items-center mb-3">📊 Trial Balance</h3>
+          <p class="text-sm text-blue-700 mb-5">Summary of all accounts with debit and credit balances</p>
+          <button routerLink="/trial-balance"
+            class="flex items-center justify-center border border-blue-300 rounded-md text-blue-700 text-sm font-medium px-4 py-2 w-full transition transform hover:bg-blue-50 hover:text-blue-900 hover:scale-105">
+            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 20l9-5-9-5-9 5 9 5z" />
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 12V4m0 0l9 5-9 5-9-5 9-5z" />
+            </svg>
+            View Report
+          </button>
+        </div>
+
+        <div class="rounded-2xl bg-gradient-to-br from-green-50 to-white p-6 shadow-lg hover:shadow-xl transition">
+          <h3 class="text-green-700 text-lg font-bold flex items-center mb-3">📖 Journal Book</h3>
+          <p class="text-sm text-green-700 mb-5">Complete record of all journal entries and line items</p>
+          <button routerLink="/journal-book"
+            class="flex items-center justify-center border border-green-300 rounded-md text-green-700 text-sm font-medium px-4 py-2 w-full transition transform hover:bg-green-50 hover:text-green-900 hover:scale-105">
+            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 20l9-5-9-5-9 5 9 5z" />
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 12V4m0 0l9 5-9 5-9-5 9-5z" />
+            </svg>
+            View Report
+          </button>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Customer & Supplier Reports -->
+    <div>
+      <h2 class="text-xl font-bold text-gray-800 mb-5">Customer & Supplier Reports</h2>
+      <div class="grid sm:grid-cols-2 gap-6 max-w-4xl">
+
+        <div class="rounded-2xl bg-gradient-to-br from-purple-50 to-white p-6 shadow-lg hover:shadow-xl transition">
+          <h3 class="text-purple-700 text-lg font-bold flex items-center mb-3">👥 Customer Ledgers</h3>
+          <p class="text-sm text-purple-700 mb-5">Detailed transaction history for customer accounts</p>
+          <button routerLink="/customer-ledgers"
+            class="flex items-center justify-center border border-purple-300 rounded-md text-purple-700 text-sm font-medium px-4 py-2 w-full transition transform hover:bg-purple-50 hover:text-purple-900 hover:scale-105">
+            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 20l9-5-9-5-9 5 9 5z" />
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 12V4m0 0l9 5-9 5-9-5 9-5z" />
+            </svg>
+            View Report
+          </button>
+        </div>
+
+        <div class="rounded-2xl bg-gradient-to-br from-orange-50 to-white p-6 shadow-lg hover:shadow-xl transition">
+          <h3 class="text-orange-700 text-lg font-bold flex items-center mb-3">📦 Supplier Ledgers</h3>
+          <p class="text-sm text-orange-700 mb-5">Detailed transaction history for supplier accounts</p>
+          <button routerLink="/supplier-ledgers"
+            class="flex items-center justify-center border border-orange-300 rounded-md text-orange-700 text-sm font-medium px-4 py-2 w-full transition transform hover:bg-orange-50 hover:text-orange-900 hover:scale-105">
+            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 20l9-5-9-5-9 5 9 5z" />
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 12V4m0 0l9 5-9 5-9-5 9-5z" />
+            </svg>
+            View Report
+          </button>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+</div>

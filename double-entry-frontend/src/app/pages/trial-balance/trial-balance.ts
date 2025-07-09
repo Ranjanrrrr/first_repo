@@ -20,77 +20,35 @@ export class TrialBalanceComponent implements OnInit {
   ledgerFilter: string = 'All Ledgers';
 
   accounts: any[] = [];
+  filteredAccounts: any[] = []; // <-- Add this
 
   constructor(
-    private accountService: AccountService,
-    private ledgerService: LedgerService
+    private accountService: AccountService
   ) {}
 
   ngOnInit(): void {
-  this.accountService.getAllAccounts().subscribe({
+  this.accountService.getTrialAccounts().subscribe({
     next: (data) => {
       this.accounts = data || [];
-      console.log('✅ Accounts loaded:', this.accounts);
-      this.accounts.forEach(acc => this.loadLedgerForAccount(acc));
+      this.filteredAccounts = [...this.accounts];  // ✅ initialize with all accounts
+      console.log('✅ Trial accounts loaded:', this.accounts);
     },
-    error: (err) => console.error('❌ Failed loading accounts', err)
+    error: (err) => console.error('❌ Failed to load trial accounts', err)
   });
 }
-  
 
 
-  loadAccounts(): void {
-    this.accountService.getAllAccounts().subscribe({
-      next: (accounts) => {
-        this.accounts = accounts.map(acc => ({
-          ...acc,
-          debit: 0,
-          credit: 0
-        }));
-        this.accounts.forEach(acc => this.loadLedgerForAccount(acc));
-      },
-      error: (err) => console.error('Error loading accounts', err)
-    });
-  }
-
-loadLedgerForAccount(acc: any): void {
-  if (acc.type === 'customer') {
-    this.ledgerService.getCustomerLedger(acc.id).subscribe({
-      next: (data) => {
-        acc.debit = data.ledger.reduce((sum: number, row: any) => sum + (row.debit || 0), 0);
-        acc.credit = data.ledger.reduce((sum: number, row: any) => sum + (row.credit || 0), 0);
-        console.log(`✅ Customer ${acc.name} -> Debit: ${acc.debit}, Credit: ${acc.credit}`);
-      },
-      error: (err) => console.error(`❌ Failed loading ledger for customer ${acc.id}`, err)
-    });
-  } else if (acc.type === 'supplier') {
-    this.ledgerService.getSupplierLedger(acc.id).subscribe({
-      next: (data) => {
-        acc.debit = data.ledger.reduce((sum: number, row: any) => sum + (row.debit || 0), 0);
-        acc.credit = data.ledger.reduce((sum: number, row: any) => sum + (row.credit || 0), 0);
-        console.log(`✅ Supplier ${acc.name} -> Debit: ${acc.debit}, Credit: ${acc.credit}`);
-      },
-      error: (err) => console.error(`❌ Failed loading ledger for supplier ${acc.id}`, err)
-    });
-  } else {
-    acc.debit = 0;
-    acc.credit = 0;
-  }
-}
 
 
 
  get totalDebit(): number {
-  const total = this.accounts.reduce((sum, acc) => sum + (acc.debit || 0), 0);
-  console.log('Total Debit:', total, 'Accounts:', this.accounts);
-  return total;
+  return this.filteredAccounts.reduce((sum, acc) => sum + (acc.debit || 0), 0);
 }
 
 get totalCredit(): number {
-  const total = this.accounts.reduce((sum, acc) => sum + (acc.credit || 0), 0);
-  console.log('Total Credit:', total, 'Accounts:', this.accounts);
-  return total;
+  return this.filteredAccounts.reduce((sum, acc) => sum + (acc.credit || 0), 0);
 }
+
 
 
   get difference(): number {
@@ -98,14 +56,30 @@ get totalCredit(): number {
   }
 
   applyFilters(): void {
-    console.log('Apply filter logic not implemented');
-  }
+  const from = this.fromDate ? new Date(this.fromDate) : null;
+  const to = this.toDate ? new Date(this.toDate) : null;
+
+  this.filteredAccounts = this.accounts.filter(acc => {
+    const matchesLedger =
+      this.ledgerFilter === 'All Ledgers' ||
+      acc.type?.toLowerCase() === this.ledgerFilter.toLowerCase();
+
+    const createdDate = acc.created_at ? new Date(acc.created_at) : null;
+    const matchesFrom = !from || (createdDate && createdDate >= from);
+    const matchesTo = !to || (createdDate && createdDate <= to);
+
+    return matchesLedger && matchesFrom && matchesTo;
+  });
+}
+
+
 
   clearFilters(): void {
     this.fromDate = '';
     this.toDate = '';
     this.ledgerFilter = 'All Ledgers';
-    this.loadAccounts();
+    this.filteredAccounts = [...this.accounts];  // ✅ Reset view
+    // this.loadAccounts();
   }
 
   exportExcel(): void {
@@ -126,7 +100,7 @@ get totalCredit(): number {
     doc.text('Trial Balance Report', 14, 14);
     autoTable(doc, {
       head: [['Account Name', 'Account Type', 'Debit', 'Credit']],
-      body: this.accounts.map(acc => [
+      body: this.filteredAccounts.map(acc => [
         acc.name,
         acc.type,
         (acc.debit || 0).toFixed(2),

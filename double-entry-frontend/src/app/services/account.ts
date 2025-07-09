@@ -1,23 +1,29 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient,HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
 @Injectable({ providedIn: 'root' })
 export class AccountService {
 
-  private baseUrl = 'http://127.0.0.1:8000/api/accounts/';
+  public baseUrl = 'http://127.0.0.1:8000/api/accounts/';
 
   constructor(private http: HttpClient) {}
 
-  getAllAccounts(): Observable<any[]> {
-    return this.http.get<any[]>(this.baseUrl);
+   getAllAccounts(params: any = {}, url: string = this.baseUrl): Observable<any> {
+    // Convert plain object to HttpParams
+    let httpParams = new HttpParams();
+    Object.keys(params).forEach(key => {
+      httpParams = httpParams.set(key, params[key]);
+    });
+
+    return this.http.get<any>(url, { params: httpParams });
   }
 
-  getAllCustomers(): Observable<any[]> {
-    return this.http.get<any[]>(`${this.baseUrl}customers/`);
+  getAllCustomers(): Observable<any> {
+    return this.http.get<any>(`${this.baseUrl}customers/`);
   }
   getAllSuppliers(): Observable<any>{
-    return this.http.get<any[]>(`${this.baseUrl}suppliers/`);
+    return this.http.get<any>(`${this.baseUrl}suppliers/`);
   }
 
   createAccount(data: {
@@ -38,10 +44,10 @@ export class AccountService {
   deleteAccount(id: number): Observable<any> {
     return this.http.delete(`${this.baseUrl}${id}/`);
   }
-  getTrialBalance(filters?: any) {
-  // Replace /trial-balance with your actual API
-  return this.http.get('/api/trial-balance', { params: filters });
+  getTrialAccounts(): Observable<any> {
+  return this.http.get<any>('http://127.0.0.1:8000/api/accounts/accountview/');
 }
+
 
 
 }

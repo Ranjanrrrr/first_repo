@@ -10,7 +10,7 @@ interface JournalEntryLine {
   debit: number | null;
   credit: number | null;
   narration: string;
-  account_name?: string;
+  account_name: string;
   currency?: string;
 }
 
@@ -35,23 +35,21 @@ interface Account {
 })
 export class JournalEntryComponent implements OnInit {
   journalEntries: JournalEntry[] = [];
-
   accounts: Account[] = [];
-
   isModalOpen = false;
-
   date: string = new Date().toISOString().substring(0, 10);
-  
   description: string = '';
   lines: JournalEntryLine[] = [
-    { account_id: null, debit: null, credit: null, narration: '' },
-    { account_id: null, debit: null, credit: null, narration: '' }
+    { account_id: null,account_name:'' ,debit: null, credit: null, narration: '' },
+    { account_id: null,account_name:'' , debit: null, credit: null, narration: '' }
   ];
+  editingEntryId: number | null = null;
+
 
   constructor(
     private accountService: AccountService,
     private journalService: JournalService,
-    private ledgerService : LedgerService,
+    private ledgerService: LedgerService,
     private cdr: ChangeDetectorRef
   ) {}
 
@@ -61,23 +59,22 @@ export class JournalEntryComponent implements OnInit {
   }
 
   loadAccounts(): void {
-    this.accountService.getAllAccounts().subscribe({
-      next: (data: Account[]) => {
-        this.accounts = data || [];
-        this.cdr.detectChanges();
-      },
-      error: (err) => {
-        console.error('Error fetching accounts', err);
-        alert('❌ Failed to load accounts');
-      }
-    });
-  }
+  this.accountService.getAllAccounts().subscribe({
+    next: (data: any) => {
+      this.accounts = data.results || data || [];
+      this.cdr.detectChanges();
+    },
+    error: (err) => {
+      console.error('Error fetching accounts', err);
+      alert(' Failed to load accounts');
+    }
+  });
+}
 
-loadEntries(): void {
+  loadEntries(): void {
   this.journalService.getAllEntries().subscribe({
-    next: (data: JournalEntry[]) => {
-      console.log('Loaded journal entries:', data);  // DEBUG LINE
-      this.journalEntries = (data || []).map(entry => ({
+    next: (data: any) => {  // use 'any' to match paginated structure
+      this.journalEntries = (data.results || data || []).map((entry: JournalEntry) => ({
         ...entry,
         lines: (entry.lines || []).map(line => ({
           ...line,
@@ -88,7 +85,7 @@ loadEntries(): void {
     },
     error: (err) => {
       console.error('Error loading journal entries', err);
-      alert('❌ Failed to load journal entries');
+      alert(' Failed to load journal entries');
     }
   });
 }
@@ -107,19 +104,47 @@ loadEntries(): void {
       this.journalService.deleteEntry(id).subscribe({
         next: () => {
           this.journalEntries = this.journalEntries.filter(e => e.id !== id);
-          alert('✅ Entry deleted');
+          alert(' Entry deleted');
         },
         error: (err) => {
           console.error('Delete failed:', err);
-          alert('❌ Failed to delete entry');
+          alert(' Failed to delete entry');
         }
       });
     }
   }
 
-  editEntry(entry: JournalEntry): void {
-    alert(`Edit Entry: JE-${entry.id}`);
-  }
+ editEntry(entry: JournalEntry): void {
+  this.editingEntryId = entry.id;
+  this.date = entry.date;
+  this.description = entry.description;
+  
+
+
+  this.lines = entry.lines.map(line => {
+    const matchedAccount = this.accounts.find(acc => acc.id === Number(line.account_id));
+    console.log(`Mapping line with account_id: ${line.account_id} → Found: ${matchedAccount?.name}`);
+    return {
+      account_id: Number(line.account_id),
+      debit: line.debit,
+      credit: line.credit,
+      narration: line.narration,
+      account_name: matchedAccount ? matchedAccount.name : '',
+      currency: line.currency
+    };
+  });
+
+  this.isModalOpen = true;
+  this.cdr.detectChanges();
+}
+
+
+onAccountChange(line: JournalEntryLine): void {
+  const selected = this.accounts.find(a => a.id === line.account_id);
+  line.account_name = selected?.name || '';
+}
+
+
 
   openModal(): void {
     this.isModalOpen = true;
@@ -131,7 +156,7 @@ loadEntries(): void {
   }
 
   addLine(): void {
-    this.lines.push({ account_id: null, debit: null, credit: null, narration: '' });
+    this.lines.push({ account_id: null,account_name:'', debit: null, credit: null, narration: '' });
   }
 
   removeLine(index: number): void {
@@ -150,66 +175,99 @@ loadEntries(): void {
     return this.getTotalDebit() === this.getTotalCredit();
   }
 
-  submit(): void {
-  if (!this.isBalanced()) {
-    alert('Journal entry is not balanced');
-    return;
-  }
-
-  const payload = {
-    date: this.date,
-    description: this.description,
-    lines: this.lines
-      .filter(line => line.account_id)
-      .map(line => ({
-        account: Number(line.account_id),
-        debit: Number(line.debit) || 0,
-        credit: Number(line.credit) || 0,
-        narration: (line.narration || '-').trim()
-      }))
-  };
-
-  this.journalService.createEntry(payload).subscribe({
-    next: () => {
-      alert('✅ Journal entry created');
-      this.closeModal();
-
-      // 🚀 Capture unique account IDs from this payload
-      const uniqueAccountIds = Array.from(new Set(
-        payload.lines.map(line => line.account.toString())
-      ));
-
-      // 🌟 Load entries, THEN fetch ledgers
-      this.loadEntries();
-
-      // 🔥 Fetch ledgers of the affected accounts
-      uniqueAccountIds.forEach(accountId => {
-        // 👉 You may want to decide if it's customer or supplier
-        this.ledgerService.getCustomerLedger(accountId).subscribe({
-          next: (data) => {
-            console.log(`📌 Ledger for Account ID ${accountId}:`, data.ledger);
-            console.log(`📌 Current Balance for Account ID ${accountId}:`, data.current_balance);
-          },
-          error: (err) => {
-            console.error(`❌ Failed to load ledger for account ${accountId}`, err);
-          }
-        });
-      });
-
-    },
-    error: (err) => {
-      console.error('Create failed:', err);
-      alert('❌ Error creating journal entry');
-    }
-  });
-}
-
   resetForm(): void {
     this.date = new Date().toISOString().substring(0, 10);
     this.description = '';
     this.lines = [
-      { account_id: null, debit: null, credit: null, narration: '' },
-      { account_id: null, debit: null, credit: null, narration: '' }
+      { account_id: null,account_name:'', debit: null, credit: null, narration: '' },
+      { account_id: null, account_name:'' ,debit: null, credit: null, narration: '' }
     ];
+      this.editingEntryId = null;
+  }
+
+  // 🟢 New method: handle debit input
+  onDebitInput(line: JournalEntryLine): void {
+    if (Number(line.debit) > 0) {
+      line.credit = 0;  // clear credit if debit entered
+    }
+  }
+
+  // 🟢 New method: handle credit input
+  onCreditInput(line: JournalEntryLine): void {
+    if (Number(line.credit) > 0) {
+      line.debit = 0;  // clear debit if credit entered
+    }
+  }
+  
+
+
+  submit(): void {
+    if (!this.description || this.description.trim() === '') {
+      alert('Description is required!');
+      return;
+    }
+
+    if (this.lines.length < 2) {
+      alert('At least two journal lines are required!');
+      return;
+    }
+
+    if (this.lines.find(line => !line.account_id)) {
+      alert('All journal lines must have an account selected!');
+      return;
+    }
+
+    // 🟢 New validation: ensure no line has both debit and credit, or neither
+    const invalidLine = this.lines.find(line => {
+      const debit = Number(line.debit) || 0;
+      const credit = Number(line.credit) || 0;
+      return (debit > 0 && credit > 0) || (debit === 0 && credit === 0);
+    });
+
+    if (invalidLine) {
+      alert(' Each line must have either debit or credit — not both, not neither!');
+      return;
+    }
+
+    if (!this.isBalanced()) {
+      alert('Journal entry is not balanced!');
+      return;
+    }
+    
+
+    
+
+    const payload = {
+      date: this.date,
+      description: this.description.trim(),
+      lines: this.lines
+        .filter(line => line.account_id)
+        .map(line => ({
+          account: Number(line.account_id),
+          debit: Number(line.debit) || 0,
+          credit: Number(line.credit) || 0,
+          narration: (line.narration || '-').trim(),
+          account_name: (line.account_name) .trim()
+        }))
+    };
+    
+    
+    
+     const request$ = this.editingEntryId
+     ? this.journalService.updateEntry(this.editingEntryId, payload)  // use PATCH or PUT in service
+     : this.journalService.createEntry(payload);
+
+    request$.subscribe({
+      next: () => {
+        alert(this.editingEntryId ? 'Journal entry updated!' : 'Journal entry created!');
+        this.closeModal();
+        this.loadEntries();
+      },
+      error: (err) => {
+        console.error(' Error saving journal entry:', err);
+        alert(' Failed to save journal entry');
+      }
+    });
+
   }
 }

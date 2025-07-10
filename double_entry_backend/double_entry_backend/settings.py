@@ -104,9 +104,13 @@ WSGI_APPLICATION = 'double_entry_backend.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': 'doubleentry',
+        'USER':'ranjan',
+        'PASSWORD':'12345678',
+        'HOST':'localhost',
+        'PORT':''
+    }                                                                       
 }
 
 

@@ -14,11 +14,11 @@
         </button>
       </div>
       <!-- Modal -->
-  <div *ngIf="isModalOpen" class="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center">
-    <div class="bg-gradient-to-br from-white via-blue-50 to-blue-100 rounded-3xl shadow-2xl w-full max-w-lg p-8 relative border border-blue-200">
+<div *ngIf="isModalOpen" class="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center overflow-y-auto">
+    <div class="bg-gradient-to-br from-white via-blue-50 to-blue-100 rounded-3xl shadow-2xl w-full max-w-lg p-8 relative border border-blue-200 ">
 
       <!-- Header -->
-      <div class="flex justify-between items-center mb-6">
+      <div class="flex justify-between items-center mb-6 ">
         <h2 class="text-2xl font-extrabold text-blue-700 tracking-wide"> Account</h2>
         <button (click)="closeModal()" class="text-gray-400 hover:text-gray-600 text-2xl leading-none">&times;</button>
       </div>
@@ -64,24 +64,59 @@
         <!-- Opening Balance -->
         <div>
           <label class="block text-sm font-semibold text-gray-700 mb-1">Opening Balance</label>
-          <input type="number" [(ngModel)]="opening_balance" step="100" min="0"name="opening_balance"
+          <input type="number" [(ngModel)]="opening_balance" step="100" min="-10000000000000000000000000"name="opening_balance"
             class="w-full px-4 py-3 border border-blue-200 rounded-2xl shadow-inner focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition placeholder-gray-400"
             placeholder="0.00" />
         </div>
 
-        <!-- Currency -->
-        <div>
-          <label class="block text-sm font-semibold text-gray-700 mb-1">Currency</label>
-          <select [(ngModel)]="currency" name="currency" required
-            class="w-full px-4 py-3 border border-blue-200 rounded-2xl shadow-inner focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition text-gray-700">
-            <option [ngValue]="''"disabled selected>Select Currency</option>
-            <option value="AED">AED - UAE Dirham</option>
-            <option value="INR">INR - Indian Rupee</option>
-            <option value="USD">USD - US Dollar</option>
-            <option value="EUR">EUR - Euro</option>
-            <option value="GBP">GBP - British Pound</option>
-          </select>
-        </div>
+       <!-- Currency -->
+<!-- <div class="relative z-10">
+  <label class="block text-sm font-semibold text-gray-700 mb-1">Currency</label>
+  <select [(ngModel)]="currency" name="currency" required
+    class="w-full px-4 py-3 border border-blue-200 rounded-2xl shadow-inner 
+           focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent 
+           transition text-gray-700 max-h-48 overflow-y-auto">
+    <option [ngValue]="''" disabled selected>Select Currency</option>
+    <option *ngFor="let c of currencyOptions" [value]="c.code">{{ c.label }}</option>
+  </select>
+</div> -->
+<!-- Currency -->
+<div class="relative">
+  <!-- Clickable Selector -->
+  <div
+    tabindex="0"
+    (click)="currencyDropdownOpen = !currencyDropdownOpen"
+    (blur)="currencyDropdownOpen = false"
+    class="w-full px-4 py-3 pr-10 border border-blue-200 rounded-2xl shadow-inner  text-gray-700 cursor-pointer transition focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent select-none relative"
+  >
+    {{ getSelectedCurrencyLabel() }}
+
+    <!-- Dropdown arrow icon -->
+    <svg class="w-4 h-4 absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none" fill="none" stroke="currentColor" stroke-width="2"
+      viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+    </svg>
+  </div>
+
+  <!-- Dropdown list -->
+  <ul *ngIf="currencyDropdownOpen"
+      class="absolute z-50 mt-1 w-full max-h-60 overflow-y-auto bg-white border border-blue-300 rounded-xl shadow-lg">
+    <li *ngFor="let c of currencyOptions"
+        (mousedown)="currency = c.code; currencyDropdownOpen = false"
+        class="px-4 py-2 hover:bg-blue-100 text-sm text-gray-700 cursor-pointer">
+      {{ c.label }}
+    </li>
+  </ul>
+</div>
+
+
+
+
+<!-- Invisible spacer to allow dropdown room below
+<div class="h-16"></div>
+ -->
+
+
 
         <!-- Status -->
         <div>

@@ -11,12 +11,35 @@ class Account(models.Model):
         ('income', 'Income'),
         ('expense', 'Expense'),
     ]
-    CURRENCIES = [      
-        ('AED', 'AED - UAE Dirham'),
-        ('INR', 'INR - Indian Rupee'),
-        ('USD', 'USD - US Dollar'),
-        ('EUR', 'EUR - Euro'),
-        ('GBP', 'GBP - British Pound'),
+    CURRENCIES = [  
+
+    ('AED', 'AED - UAE Dirham'),
+    ('INR', 'INR - Indian Rupee'),   
+    ('USD', 'USD - US Dollar'),
+    ('EUR', 'EUR - Euro'),
+    ('GBP', 'GBP - British Pound'),
+    ('SAR', 'SAR - Saudi Riyal'),
+    ('KWD', 'KWD - Kuwaiti Dinar'),
+    ('QAR', 'QAR - Qatari Riyal'),
+    ('CNY', 'CNY - Chinese Yuan'),
+    ('HKD', 'HKD - Hong Kong Dollar'),
+    ('JPY', 'JPY - Japanese Yen'),
+    ('CHF', 'CHF - Swiss Franc'),
+    ('AUD', 'AUD - Australian Dollar'),
+    ('CAD', 'CAD - Canadian Dollar'),
+    ('SGD', 'SGD - Singapore Dollar'),
+    ('THB', 'THB - Thai Baht'),
+    ('KRW', 'KRW - South Korean Won'),
+    ('IDR', 'IDR - Indonesian Rupiah'),
+    ('MYR', 'MYR - Malaysian Ringgit'),
+    ('OMR', 'OMR - Omani Rial'),
+    ('BHD', 'BHD - Bahraini Dinar'),
+    ('PKR', 'PKR - Pakistani Rupee'),
+    ('BDT', 'BDT - Bangladeshi Taka'),
+    ('TRY', 'TRY - Turkish Lira'),
+    ('EGP', 'EGP - Egyptian Pound')
+
+
     ]
     STATUS_CHOICES = [
         ('active', 'Active'),

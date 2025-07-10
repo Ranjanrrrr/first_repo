@@ -31,7 +31,7 @@ export class TrialBalanceComponent implements OnInit {
     next: (data) => {
       this.accounts = data || [];
       this.filteredAccounts = [...this.accounts];  // ✅ initialize with all accounts
-      console.log('✅ Trial accounts loaded:', this.accounts);
+      console.log('Trial accounts loaded:', this.accounts);
     },
     error: (err) => console.error('❌ Failed to load trial accounts', err)
   });
@@ -58,15 +58,21 @@ get totalCredit(): number {
   applyFilters(): void {
   const from = this.fromDate ? new Date(this.fromDate) : null;
   const to = this.toDate ? new Date(this.toDate) : null;
+  console.log('⏳ Filtering accounts from', this.fromDate, 'to', this.toDate);
 
   this.filteredAccounts = this.accounts.filter(acc => {
+    //ledger filtering
     const matchesLedger =
       this.ledgerFilter === 'All Ledgers' ||
       acc.type?.toLowerCase() === this.ledgerFilter.toLowerCase();
 
-    const createdDate = acc.created_at ? new Date(acc.created_at) : null;
-    const matchesFrom = !from || (createdDate && createdDate >= from);
-    const matchesTo = !to || (createdDate && createdDate <= to);
+    // ✅ Validate created_at and apply date range filtering
+    const created = acc.created_at ? new Date(acc.created_at) : null;
+      console.log('📅 Account:', acc.name, '| Created at:', created);
+    const isValidDate = created instanceof Date && !isNaN(created.getTime());
+
+    const matchesFrom = !from || (isValidDate && created >= from);
+    const matchesTo = !to || (isValidDate && created <= to);
 
     return matchesLedger && matchesFrom && matchesTo;
   });

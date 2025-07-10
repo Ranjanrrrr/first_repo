@@ -15,7 +15,7 @@ export class Accounts implements OnInit {
   name = '';
   type = '';
   opening_balance: number | null = null;
-  currency: any = '';
+  currency: any = 'AED';
   status = 'active';
   parent: number | null = null;
   isModalOpen = false;
@@ -30,6 +30,44 @@ export class Accounts implements OnInit {
   paginationArray: (number | string)[] = [];
   pageStart = 0;
   pageEnd = 0;
+  currencyOptions = [
+  { code: 'AED', label: 'AED - UAE Dirham' },
+  { code: 'INR', label: 'INR - Indian Rupee' },
+  { code: 'USD', label: 'USD - US Dollar' },
+  { code: 'EUR', label: 'EUR - Euro' },
+  { code: 'GBP', label: 'GBP - British Pound' },
+  { code: 'SAR', label: 'SAR - Saudi Riyal' },
+  { code: 'KWD', label: 'KWD - Kuwaiti Dinar' },
+  { code: 'QAR', label: 'QAR - Qatari Riyal' },
+  { code: 'CNY', label: 'CNY - Chinese Yuan' },
+  { code: 'HKD', label: 'HKD - Hong Kong Dollar' },
+  { code: 'JPY', label: 'JPY - Japanese Yen' },
+  { code: 'CHF', label: 'CHF - Swiss Franc' },
+  { code: 'AUD', label: 'AUD - Australian Dollar' },
+  { code: 'CAD', label: 'CAD - Canadian Dollar' },
+  { code: 'SGD', label: 'SGD - Singapore Dollar' },
+  { code: 'THB', label: 'THB - Thai Baht' },
+  { code: 'KRW', label: 'KRW - South Korean Won' },
+  { code: 'IDR', label: 'IDR - Indonesian Rupiah' },
+  { code: 'MYR', label: 'MYR - Malaysian Ringgit' },
+  { code: 'OMR', label: 'OMR - Omani Rial' },
+  { code: 'BHD', label: 'BHD - Bahraini Dinar' },
+  { code: 'PKR', label: 'PKR - Pakistani Rupee' },
+  { code: 'BDT', label: 'BDT - Bangladeshi Taka' },
+  { code: 'TRY', label: 'TRY - Turkish Lira' },
+  { code: 'EGP', label: 'EGP - Egyptian Pound' }
+];
+
+
+currencyDropdownOpen = false;
+getSelectedCurrencyLabel(): string {
+  const match = this.currencyOptions.find(c => c.code === this.currency);
+  return match ? match.label : 'Select Currency';
+}
+
+
+
+
 
   constructor(
     private accountService: AccountService,

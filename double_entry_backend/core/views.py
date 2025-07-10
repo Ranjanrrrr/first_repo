@@ -85,6 +85,7 @@ class AccountViewSet(viewsets.ModelViewSet):
                 "status": acc.status,
                 "currency": acc.currency,
                 # ✅ Split balance into debit/credit
+                "created_at": acc.created_at.isoformat() if acc.created_at else None,  # ✅ Added here
                 "debit": balance if balance > 0 else 0,
                 "credit": -balance if balance < 0 else 0
             })

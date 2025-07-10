@@ -93,38 +93,68 @@ export class SupplierLedgers implements OnInit {
 
   // 🚀 Export to Excel
   exportExcel(): void {
-    const dataToExport = (this.filteredLedgers.length ? this.filteredLedgers : this.ledgers).map(row => ({
-      Date: row.date,
-      Description: row.description || '-',
-      Debit: row.debit || 0,
-      Credit: row.credit || 0,
-      Balance: row.computedBalance || 0
-    }));
+  const rows = this.filteredLedgers.length ? this.filteredLedgers : this.ledgers;
 
-    const worksheet = XLSX.utils.json_to_sheet(dataToExport);
-    const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, 'Supplier Ledger');
+  const dataToExport = rows.map(row => ({
+    Date: row.date,
+    Description: row.description || '-',
+    Debit: row.debit || 0,
+    Credit: row.credit || 0,
+    Balance: `${row.balance || 0} ${this.currency}`
+  }));
 
-    XLSX.writeFile(workbook, `supplier_ledger_${this.selectedSupplier}.xlsx`);
-  }
+  // ✅ Add Opening Balance row at the top
+  dataToExport.unshift({
+    Date: '',
+    Description: '',
+    Debit: '',
+    Credit: 'Opening Balance:',
+    Balance: `${(Number(this.openingBalance) || 0)} ${this.currency || ''}`
+  });
+
+  const worksheet = XLSX.utils.json_to_sheet(dataToExport);
+  const workbook = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(workbook, worksheet, 'Supplier Ledger');
+
+  XLSX.writeFile(workbook, `supplier_ledger_${this.selectedSupplier}.xlsx`);
+}
 
   // 🚀 Export to PDF
   exportPDF(): void {
-    const doc = new jsPDF();
+  const doc = new jsPDF();
 
-    doc.text(`Supplier Ledger: ${this.selectedSupplier}`, 14, 14);
-    autoTable(doc, {
-      head: [['Date', 'Description', 'Debit', 'Credit', 'Balance']],
-      body: (this.filteredLedgers.length ? this.filteredLedgers : this.ledgers).map(row => [
-        row.date,
-        row.description || '-',
-        (row.debit || 0).toFixed(2),
-        (row.credit || 0).toFixed(2),
-        (row.computedBalance || 0).toFixed(2)
-      ]),
-      startY: 20
-    });
+  // 🔷 Heading
+  doc.setFontSize(14);
+  doc.setTextColor(33, 37, 41); // dark gray
+  doc.text(` Supplier Ledger: ${this.selectedSupplier}`, 14, 14);
 
-    doc.save(`supplier_ledger_${this.selectedSupplier}.pdf`);
-  }
+  // 🔷 Opening Balance Display
+  const openingBalanceText = `Opening Balance: ${(Number(this.openingBalance) || 0).toFixed(2)} ${this.currency || ''}`;
+  doc.setFontSize(12);
+  doc.setTextColor(30, 64, 175); // Tailwind blue-700
+
+  const pageWidth = doc.internal.pageSize.getWidth();
+  const textWidth = doc.getTextWidth(openingBalanceText);
+
+  // align to the right with some right margin
+  doc.text(openingBalanceText, pageWidth - textWidth - 20, 20);
+
+  // 🔽 Table body
+  const ledgerRows = (this.filteredLedgers.length ? this.filteredLedgers : this.ledgers).map(row => [
+    row.date,
+    row.description || '-',
+    (row.debit || 0).toFixed(2),
+    (row.credit || 0).toFixed(2),
+    `${(row.balance || 0).toFixed(2)} ${this.currency}`
+  ]);
+
+  autoTable(doc, {
+    head: [['Date', 'Description', 'Debit', 'Credit', 'Balance']],
+    body: ledgerRows,
+    startY: 28
+  });
+
+  doc.save(`supplier_ledger_${this.selectedSupplier}.pdf`);
+}
+
 }

@@ -89,41 +89,72 @@ export class CustomerLedgers implements OnInit {
     this.toDate = '';
     this.filteredLedgers = this.ledgers;
   }
+  //export excel
+    exportExcel(): void {
+      const rows = this.filteredLedgers.length ? this.filteredLedgers : this.ledgers;
 
-  // 🚀 Export to Excel
-  exportExcel(): void {
-    const dataToExport = (this.filteredLedgers.length ? this.filteredLedgers : this.ledgers).map(row => ({
-      Date: row.date,
-      Description: row.description || '-',
-      Debit: row.debit || 0,
-      Credit: row.credit || 0,
-      Balance: row.computedBalance || 0
-    }));
+      const dataToExport = rows.map(row => ({
+        Date: row.date,
+        Description: row.description || '-',
+        Debit: row.debit || 0,
+        Credit: row.credit || 0,
+        Balance: `${row.balance || 0} ${this.currency}`
+      }));
 
-    const worksheet = XLSX.utils.json_to_sheet(dataToExport);
-    const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, 'Customer Ledger');
+      // ✅ Add Opening Balance row (right aligned with currency)
+      dataToExport.unshift({  // Use unshift to place it at the top if you want, or push for bottom
+        Date: '',
+        Description: '',
+        Debit: '',
+        Credit: 'Opening Balance:',
+        Balance: `${(Number(this.openingBalance) || 0)} ${this.currency || ''}`
+      });
 
-    XLSX.writeFile(workbook, `customer_ledger_${this.selectedCustomer}.xlsx`);
-  }
+      const worksheet = XLSX.utils.json_to_sheet(dataToExport);
+      const workbook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(workbook, worksheet, 'Customer Ledger');
 
-  // 🚀 Export to PDF
+      XLSX.writeFile(workbook, `customer_ledger_${this.selectedCustomer}.xlsx`);
+    }
+
+
+//export pdf
   exportPDF(): void {
-    const doc = new jsPDF();
+  const doc = new jsPDF();
 
-    doc.text(`Customer Ledger: ${this.selectedCustomer}`, 14, 14);
-    autoTable(doc, {
-      head: [['Date', 'Description', 'Debit', 'Credit', 'Balance']],
-      body: (this.filteredLedgers.length ? this.filteredLedgers : this.ledgers).map(row => [
-        row.date,
-        row.description || '-',
-        (row.debit || 0).toFixed(2),
-        (row.credit || 0).toFixed(2),
-        (row.computedBalance || 0).toFixed(2)
-      ]),
-      startY: 20
-    });
+  // 🔷 Heading
+  doc.setFontSize(14);
+  doc.setTextColor(33, 37, 41); // dark gray
+  doc.text(` Customer Ledger: ${this.selectedCustomer}`, 14, 14);
 
-    doc.save(`customer_ledger_${this.selectedCustomer}.pdf`);
-  }
+  // 🔷 Opening Balance Display (above table, styled like a badge/stat)
+  const openingBalanceText = `Opening Balance: ${(Number(this.openingBalance) || 0).toFixed(2)} ${this.currency || ''}`;
+  doc.setFontSize(12);
+  doc.setTextColor(30, 64, 175); // Tailwind 'blue-700'
+
+
+  const pageWidth = doc.internal.pageSize.getWidth();
+  const textWidth = doc.getTextWidth(openingBalanceText);
+
+  // align to the right with some right margin (14)
+  doc.text(openingBalanceText, pageWidth - textWidth - 20, 20);
+
+  // ⬇ Ledger Table
+  const ledgerRows = (this.filteredLedgers.length ? this.filteredLedgers : this.ledgers).map(row => [
+    row.date,
+    row.description || '-',
+    (row.debit || 0).toFixed(2),
+    (row.credit || 0).toFixed(2),
+    `${(row.balance || 0).toFixed(2)} ${this.currency}`
+  ]);
+
+  autoTable(doc, {
+    head: [['Date', 'Description', 'Debit', 'Credit', 'Balance']],
+    body: ledgerRows,
+    startY: 28 // ⬅️ Adjusted to appear below the Opening Balance text
+  });
+
+  doc.save(`customer_ledger_${this.selectedCustomer}.pdf`);
+}
+
 }
